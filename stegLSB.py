@@ -18,6 +18,10 @@ class StegFile:
 		for byte in range (0, 4*numFrames):
 			pack = struct.pack ('h', hid [byte])
 			self.file.writeframes (pack [:1])
+	
+	def closeStegFile (self):
+		"""Closes the audio file"""
+		self.file.close ()
 
 class AudioFile:
 	"""Class for source wave file"""
@@ -37,6 +41,10 @@ class AudioFile:
 	def getParamTuple (self):
 		"""Returns all the wave parameters as a tuple (immutable)"""
 		return self.file.getparams ()
+	
+	def closeAudioFile (self):
+		"""Closes the audio file"""
+		self.file.close ()
 
 class StegMsg:
 	"""Class for the text message"""
