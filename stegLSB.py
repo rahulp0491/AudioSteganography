@@ -1,8 +1,5 @@
 #! /usr/bin/python
 
-import os
-import sys
-import bit
 import struct
 import wave as W
 
@@ -11,11 +8,14 @@ class StegFile:
 	def __init__ (self, outFile, paramTuple):
 		"""Opens/Creates output file and sets all the params as of the source file"""
 		self.file = W.open (outFile, 'wb')
+		
+#		Setting file parameters
 		self.file.setparams (paramTuple)
 	
 	def writeFile (self, numFrames, hid):
 		"""Writes new message-hidden data into the output file"""
 		for byte in range (0, 4*numFrames):
+#			1 frame = 4 bytes; pack ord data to hex and write byte by byte
 			pack = struct.pack ('h', hid [byte])
 			self.file.writeframes (pack [:1])
 	
@@ -56,47 +56,8 @@ class StegMsg:
 		"""Gets the length of the message"""
 		return len (self.msg)
 
-def dataToOrd (data):
-	"""Returns a list of integer ordinals of the data"""
-	return [ord (byte) for byte in data]
 
-def hideMsg (text, ordData):
-	"""Sets the starting byte; 0-43 bytes are used for wave headers
-	Writes new steganofied data and returns a list of bytes (integer ordinal form)"""
-	startByte = 44
-	bitLen = 8
-	msgLen = text.msgLen ()
-	byteNum = startByte
-	ordText =  dataToOrd (text.msg)
-	
-	for byte in range (0, msgLen):
-		for b in range (0, bitLen):
-			ordData [byteNum] = bit.changeLSB (ordData [byteNum], bit.getbit (ordText [byte], b))
-			byteNum = byteNum + 1
-	
-	return ordData
 
-if __name__ == '__main__':
-	"""Main routine"""
-	fileName = sys.argv[1]
-	if os.path.isfile (fileName):
-		pass
-	else:
-		raise IOError ('File does not exists')
-	
-	inFile = AudioFile (fileName)
-	inData = inFile.getData ()
-	ordData =  dataToOrd (inData)
-	text = StegMsg ()
-	
-	hidObj = hideMsg (text, ordData)
-	
-	outfilename = sys.argv[2]
-	
-	try:
-		outFile = StegFile (outfilename, inFile.getParamTuple ())
-	except:
-		raise IOError ('File does not exists')
-	
-	outFile.writeFile (inFile.getNumFrames (), hidObj)
+
+
 
